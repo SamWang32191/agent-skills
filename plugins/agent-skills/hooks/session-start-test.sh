@@ -42,5 +42,13 @@ if (hasJq) {
   }
 }
 
+const hookConfig = JSON.parse(fs.readFileSync('hooks/hooks.json', 'utf8'));
+const sessionStartCommand = hookConfig.hooks.SessionStart[0].hooks[0].command;
+const expectedCommand = 'bash ${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/hooks/session-start.sh';
+
+if (sessionStartCommand !== expectedCommand) {
+  throw new Error(`expected dual-host hook command ${expectedCommand}, got ${sessionStartCommand}`);
+}
+
 console.log('session-start JSON payload OK');
 NODE
