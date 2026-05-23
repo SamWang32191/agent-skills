@@ -113,8 +113,8 @@ Use agent definitions from `agents/` as Copilot personas and skill content in `.
 Codex uses a local Codex Distribution: a nested plugin bundle plus synced local prompts and agent roles.
 
 ```bash
-codex plugin marketplace add ./.agents/plugins/marketplace.json
-codex plugin install agent-skills@agent-skills
+codex plugin marketplace add .
+codex plugin add agent-skills@agent-skills
 bash scripts/sync-codex-assets.sh
 ```
 

@@ -7,7 +7,7 @@ The Codex Distribution has two parts:
 - **Codex Plugin Bundle:** `plugins/agent-skills/`, loaded by Codex through the plugin system.
 - **Synced Local Assets:** generated prompts and agent roles copied into `${CODEX_HOME:-~/.codex}`.
 
-Marketplace installation alone does not install the local prompts or agent roles. Run the sync step after enabling the plugin bundle.
+Adding the marketplace and plugin bundle alone does not install the local prompts or agent roles. Run the sync step after enabling the plugin bundle.
 
 ## Prerequisites
 
@@ -20,8 +20,8 @@ Marketplace installation alone does not install the local prompts or agent roles
 From the repository root:
 
 ```bash
-codex plugin marketplace add ./.agents/plugins/marketplace.json
-codex plugin install agent-skills@agent-skills
+codex plugin marketplace add .
+codex plugin add agent-skills@agent-skills
 bash scripts/sync-codex-assets.sh
 ```
 
