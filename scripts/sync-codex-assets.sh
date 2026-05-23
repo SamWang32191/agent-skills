@@ -58,10 +58,12 @@ require_dir() {
   local dir="$1"
   local label="$2"
   local pattern="$3"
+  local match
   if [ ! -d "$dir" ]; then
     emit_error "missing_source_dir" "missing ${label} at ${dir}. Run: node scripts/codex-distribution.mjs generate" "$dir"
   fi
-  if ! find "$dir" -maxdepth 1 -type f -name "$pattern" 2>/dev/null | grep -q .; then
+  match="$(find "$dir" -maxdepth 1 -type f -name "$pattern" -print -quit 2>/dev/null)"
+  if [ -z "$match" ]; then
     emit_error "missing_matching_artifacts" "no ${label} files matching ${pattern} at ${dir}. Run: node scripts/codex-distribution.mjs generate" "$dir"
   fi
 }
@@ -101,8 +103,7 @@ install_one() {
   local src="$1" dest="$2" rel="$3"
 
   if [ ! -f "$src" ]; then
-    printf 'error: missing source artifact %s\n' "$src" >&2
-    exit 1
+    emit_error "missing_source_artifact" "missing source artifact ${src}. Run: node scripts/codex-distribution.mjs generate" "$src"
   fi
 
   if [ ! -e "$dest" ]; then
@@ -112,6 +113,12 @@ install_one() {
       mkdir -p "$(dirname "$dest")"
       cp "$src" "$dest"
     fi
+    return 0
+  fi
+
+  if [ -L "$dest" ]; then
+    printf 'conflict %s (destination is symlink)\n' "$rel" >&2
+    record_conflict "$rel"
     return 0
   fi
 

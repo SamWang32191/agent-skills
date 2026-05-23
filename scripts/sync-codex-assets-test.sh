@@ -56,6 +56,17 @@ assert_not_exists() {
   fi
 }
 
+assert_is_symlink() {
+  local label="$1" path="$2"
+  if [ -L "$path" ]; then
+    pass=$((pass + 1))
+    printf '  PASS: %s\n' "$label"
+  else
+    fail=$((fail + 1))
+    printf '  FAIL: %s\n    expected symlink: %s\n' "$label" "$path" >&2
+  fi
+}
+
 assert_no_files() {
   local label="$1" path="$2"
   local file_count
@@ -126,16 +137,18 @@ assert_files_are_equal "backup preserved original content" "$local_edit_tmp" "$b
 assert_files_are_equal "destination overwritten from generated prompt" "codex/prompts/agent-skills-spec.md" "$home2/prompts/agent-skills-spec.md"
 
 printf '\nTest 5: ignore non-target source files\n'
+tmp_non_target_root="$TMPDIR/non-target-source"
+mkdir -p "$tmp_non_target_root/scripts"
+cp -R codex "$tmp_non_target_root/"
+cp scripts/sync-codex-assets.sh "$tmp_non_target_root/scripts/"
+chmod +x "$tmp_non_target_root/scripts/sync-codex-assets.sh"
+printf 'not a prompt file\n' > "$tmp_non_target_root/codex/prompts/not-a-prompt.txt"
+printf 'not an agent file\n' > "$tmp_non_target_root/codex/agents/not-an-agent.md"
 home3="$TMPDIR/home3"
 mkdir -p "$home3"
-tmp_prompt_non_target="$ROOT/codex/prompts/not-a-prompt.txt"
-tmp_agent_non_target="$ROOT/codex/agents/not-an-agent.md"
-printf 'not a prompt file\n' > "$tmp_prompt_non_target"
-printf 'not an agent file\n' > "$tmp_agent_non_target"
-_ignore_output="$(CODEX_HOME="$home3" bash scripts/sync-codex-assets.sh --dry-run)"
+_ignore_output="$(CODEX_HOME="$home3" bash "$tmp_non_target_root/scripts/sync-codex-assets.sh" --dry-run)"
 assert_not_exists "prompt non-target is not copied" "$home3/prompts/not-a-prompt.txt"
 assert_not_exists "agent non-target is not copied" "$home3/agents/not-an-agent.md"
-rm -f "$tmp_prompt_non_target" "$tmp_agent_non_target"
 
 printf '\nTest 6: missing source directories return error JSON\n'
 tmp_missing_root="$TMPDIR/missing-source"
@@ -171,6 +184,29 @@ assert_contains "no matching artifacts JSON status" '"status":"error"' "$nomatch
 assert_contains "no matching artifacts JSON type" '"type":"missing_matching_artifacts"' "$nomatch_output"
 assert_contains "no matching artifacts path message" '/no-matching-source/codex/prompts' "$nomatch_output"
 assert_contains "no matching artifacts human-readable error" 'error:' "$nomatch_stderr"
+
+printf '\nTest 8: symlink destinations are reported as conflicts even with --force\n'
+tmp_symlink_root="$TMPDIR/symlink-dest"
+mkdir -p "$tmp_symlink_root/scripts"
+cp -R codex "$tmp_symlink_root/"
+cp scripts/sync-codex-assets.sh "$tmp_symlink_root/scripts/"
+chmod +x "$tmp_symlink_root/scripts/sync-codex-assets.sh"
+home4="$TMPDIR/home4"
+mkdir -p "$home4/prompts"
+mkdir -p "$tmp_symlink_root/ext"
+printf 'external target content\n' > "$tmp_symlink_root/ext/agent-skills-spec.txt"
+ln -sf "$tmp_symlink_root/ext/agent-skills-spec.txt" "$home4/prompts/agent-skills-spec.md"
+set +e
+symlink_output="$(CODEX_HOME="$home4" bash "$tmp_symlink_root/scripts/sync-codex-assets.sh" --force 2>"$TMPDIR/symlink.stderr")"
+symlink_status=$?
+set -e
+symlink_stderr="$(cat "$TMPDIR/symlink.stderr")"
+assert_eq "symlink destination exits 2" "2" "$symlink_status"
+assert_contains "symlink destination conflict status" '"status":"conflict"' "$symlink_output"
+assert_contains "symlink destination path included" 'prompts/agent-skills-spec.md' "$symlink_output"
+assert_is_symlink "destination remains a symlink" "$home4/prompts/agent-skills-spec.md"
+assert_eq "symlink target file preserved" "external target content" "$(cat "$tmp_symlink_root/ext/agent-skills-spec.txt")"
+assert_contains "symlink path does not write through on stderr" 'destination is symlink' "$symlink_stderr"
 
 if [ "$fail" -gt 0 ]; then
   printf '\n%d assertion(s) failed\n' "$fail" >&2
