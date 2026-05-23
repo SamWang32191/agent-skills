@@ -78,6 +78,17 @@ assert_is_symlink() {
   fi
 }
 
+assert_is_dir() {
+  local label="$1" path="$2"
+  if [ -d "$path" ]; then
+    pass=$((pass + 1))
+    printf '  PASS: %s\n' "$label"
+  else
+    fail=$((fail + 1))
+    printf '  FAIL: %s\n    expected directory: %s\n' "$label" "$path" >&2
+  fi
+}
+
 assert_no_files() {
   local label="$1" path="$2"
   local file_count
@@ -222,7 +233,59 @@ assert_not_exists_path "symlink dangling external target still missing" \
   "$tmp_symlink_root/ext/agent-skills-spec-target.txt-missing"
 assert_contains "symlink path does not write through on stderr" 'destination is symlink' "$symlink_stderr"
 
-printf '\nTest 9: symlinked prompts directory is reported as conflict\n'
+printf '\nTest 9: destination prompts directory is regular file (dry-run)\n'
+home7="$TMPDIR/home7"
+mkdir -p "$home7"
+printf 'opaque file\n' > "$home7/prompts"
+set +e
+prompts_file_output="$(CODEX_HOME="$home7" bash scripts/sync-codex-assets.sh --dry-run 2>"$TMPDIR/prompts-dir-file.err")"
+prompts_file_status=$?
+set -e
+assert_eq "destination prompts file (dry-run) exits 2" "2" "$prompts_file_status"
+assert_contains "destination prompts file conflict JSON status" '"status":"conflict"' "$prompts_file_output"
+assert_contains "destination prompts file conflict path included" '"prompts"' "$prompts_file_output"
+assert_file_exists "destination prompts file remains untouched" "$home7/prompts"
+
+printf '\nTest 10: destination agents directory is regular file (dry-run)\n'
+home8="$TMPDIR/home8"
+mkdir -p "$home8"
+printf 'opaque file\n' > "$home8/agents"
+set +e
+agents_file_output="$(CODEX_HOME="$home8" bash scripts/sync-codex-assets.sh --dry-run 2>"$TMPDIR/agents-dir-file.err")"
+agents_file_status=$?
+set -e
+assert_eq "destination agents file (dry-run) exits 2" "2" "$agents_file_status"
+assert_contains "destination agents file conflict JSON status" '"status":"conflict"' "$agents_file_output"
+assert_contains "destination agents file conflict path included" '"agents"' "$agents_file_output"
+assert_file_exists "destination agents file remains untouched" "$home8/agents"
+
+printf '\nTest 11: prompt artifact destination path as directory blocks sync even with force\n'
+home9="$TMPDIR/home9/prompts"
+mkdir -p "$home9"
+mkdir -p "$home9/agent-skills-spec.md"
+set +e
+artifact_dir_output="$(CODEX_HOME="$TMPDIR/home9" bash scripts/sync-codex-assets.sh --force 2>"$TMPDIR/artifact-dir.err")"
+artifact_dir_status=$?
+set -e
+assert_eq "prompt artifact path directory exits 2" "2" "$artifact_dir_status"
+assert_contains "prompt artifact path directory conflict JSON status" '"status":"conflict"' "$artifact_dir_output"
+assert_contains "prompt artifact directory path included" 'prompts/agent-skills-spec.md' "$artifact_dir_output"
+assert_is_dir "prompt artifact destination still directory" "$TMPDIR/home9/prompts/agent-skills-spec.md"
+
+printf '\nTest 12: agents artifact destination path as directory blocks sync even with force\n'
+home10="$TMPDIR/home10/agents"
+mkdir -p "$home10"
+mkdir -p "$home10/code-reviewer.toml"
+set +e
+artifact_dir_agents_output="$(CODEX_HOME="$TMPDIR/home10" bash scripts/sync-codex-assets.sh --force 2>"$TMPDIR/artifact-dir-agents.err")"
+artifact_dir_agents_status=$?
+set -e
+assert_eq "agents artifact path directory exits 2" "2" "$artifact_dir_agents_status"
+assert_contains "agents artifact path directory conflict JSON status" '"status":"conflict"' "$artifact_dir_agents_output"
+assert_contains "agents artifact directory path included" 'agents/code-reviewer.toml' "$artifact_dir_agents_output"
+assert_is_dir "agents artifact destination still directory" "$TMPDIR/home10/agents/code-reviewer.toml"
+
+printf '\nTest 13: symlinked prompts directory is reported as conflict\n'
 tmp_dirsymlink_root="$TMPDIR/dirsymlink-prompts-root"
 mkdir -p "$tmp_dirsymlink_root/scripts"
 cp -R codex "$tmp_dirsymlink_root/"
@@ -243,7 +306,7 @@ assert_is_symlink "prompts destination remains a symlink" "$home5/prompts"
 assert_contains "symlinked prompts reports directory symlink" 'destination directory is symlink' "$dirsymlink_stderr"
 assert_not_exists_path "external dangling prompts target remains missing" "$tmp_dirsymlink_root/ext-prompts-missing"
 
-printf '\nTest 10: symlinked agents directory is reported as conflict\n'
+printf '\nTest 14: symlinked agents directory is reported as conflict\n'
 tmp_dirsymlink_agents_root="$TMPDIR/dirsymlink-agents-root"
 mkdir -p "$tmp_dirsymlink_agents_root/scripts"
 cp -R codex "$tmp_dirsymlink_agents_root/"

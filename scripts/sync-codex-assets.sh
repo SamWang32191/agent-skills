@@ -112,6 +112,12 @@ install_one() {
     return 0
   fi
 
+  if [ -d "$dest" ]; then
+    printf 'conflict %s (destination is directory)\n' "$rel" >&2
+    record_conflict "$rel"
+    return 0
+  fi
+
   if [ ! -e "$dest" ]; then
     printf 'copy %s\n' "$rel" >&2
     record_copy "$rel"
@@ -149,6 +155,11 @@ sync_dir() {
   local src_dir="$1" dest_dir="$2" rel_prefix="$3" pattern="$4" file base rel
   if [ -L "$dest_dir" ]; then
     printf 'conflict %s (destination directory is symlink)\n' "$rel_prefix" >&2
+    record_conflict "$rel_prefix"
+    return 0
+  fi
+  if [ -e "$dest_dir" ] && [ ! -d "$dest_dir" ]; then
+    printf 'conflict %s (destination path is not a directory)\n' "$rel_prefix" >&2
     record_conflict "$rel_prefix"
     return 0
   fi
