@@ -7,7 +7,7 @@ on:
 
 jobs:
   validate-skills:
-    name: Validate skill content
+    name: Validate skill and Codex distribution content
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +19,15 @@ jobs:
 
       - name: Validate all skills
         run: node scripts/validate-skills.js
+
+      - name: Test Codex distribution generator
+        run: node --test scripts/codex-distribution-test.mjs
+
+      - name: Test Codex asset sync
+        run: bash scripts/sync-codex-assets-test.sh
+
+      - name: Check Codex generated artifacts
+        run: node scripts/codex-distribution.mjs check
 
   validate:
     name: Validate plugin structure
