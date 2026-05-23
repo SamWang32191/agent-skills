@@ -1,0 +1,19 @@
+{
+  "name": "agent-skills",
+  "owner": {
+    "name": "Addy Osmani"
+  },
+  "metadata": {
+    "description": "Repo-local Codex Distribution marketplace for Agent Skills."
+  },
+  "plugins": [
+    {
+      "name": "agent-skills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/agent-skills"
+      },
+      "description": "Production-grade engineering skills covering spec, plan, build, verify, review, and ship workflows."
+    }
+  ]
+}
