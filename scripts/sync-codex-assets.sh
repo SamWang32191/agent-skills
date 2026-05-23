@@ -42,15 +42,27 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
+emit_error() {
+  local type="$1"
+  local message="$2"
+  local path="$3"
+  printf 'error: %s\n' "$message" >&2
+  printf '{"status":"error","type":"%s","message":"%s","path":"%s","hint":"Run: node scripts/codex-distribution.mjs generate"}\n' \
+    "$(json_escape "$type")" \
+    "$(json_escape "$message")" \
+    "$(json_escape "$path")"
+  exit 1
+}
+
 require_dir() {
-  local dir="$1" label="$2"
+  local dir="$1"
+  local label="$2"
+  local pattern="$3"
   if [ ! -d "$dir" ]; then
-    printf 'error: missing %s at %s. Run: node scripts/codex-distribution.mjs generate\n' "$label" "$dir" >&2
-    exit 1
+    emit_error "missing_source_dir" "missing ${label} at ${dir}. Run: node scripts/codex-distribution.mjs generate" "$dir"
   fi
-  if ! find "$dir" -maxdepth 1 -type f 2>/dev/null | grep -q .; then
-    printf 'error: %s has no files at %s. Run: node scripts/codex-distribution.mjs generate\n' "$label" "$dir" >&2
-    exit 1
+  if ! find "$dir" -maxdepth 1 -type f -name "$pattern" 2>/dev/null | grep -q .; then
+    emit_error "missing_matching_artifacts" "no ${label} files matching ${pattern} at ${dir}. Run: node scripts/codex-distribution.mjs generate" "$dir"
   fi
 }
 
@@ -127,11 +139,11 @@ install_one() {
 }
 
 sync_dir() {
-  local src_dir="$1" dest_dir="$2" rel_prefix="$3" file base rel
+  local src_dir="$1" dest_dir="$2" rel_prefix="$3" pattern="$4" file base rel
   if [ "$DRY_RUN" -eq 0 ]; then
     mkdir -p "$dest_dir"
   fi
-  for file in "$src_dir"/*; do
+  for file in "$src_dir"/$pattern; do
     [ -f "$file" ] || continue
     base="$(basename "$file")"
     rel="$rel_prefix/$base"
@@ -139,15 +151,15 @@ sync_dir() {
   done
 }
 
-require_dir "$PROMPT_SRC" "generated Codex prompts"
-require_dir "$AGENT_SRC" "generated Codex agents"
+require_dir "$PROMPT_SRC" "generated Codex prompts" "*.md"
+require_dir "$AGENT_SRC" "generated Codex agents" "*.toml"
 
 if [ "$DRY_RUN" -eq 0 ]; then
   mkdir -p "$CODEX_HOME_DIR/prompts" "$CODEX_HOME_DIR/agents"
 fi
 
-sync_dir "$PROMPT_SRC" "$CODEX_HOME_DIR/prompts" "prompts"
-sync_dir "$AGENT_SRC" "$CODEX_HOME_DIR/agents" "agents"
+sync_dir "$PROMPT_SRC" "$CODEX_HOME_DIR/prompts" "prompts" "*.md"
+sync_dir "$AGENT_SRC" "$CODEX_HOME_DIR/agents" "agents" "*.toml"
 
 status="ok"
 exit_code=0
