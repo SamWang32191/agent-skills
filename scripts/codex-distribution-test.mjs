@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import {
@@ -15,7 +16,7 @@ import {
   validateGeneratedArtifacts,
 } from './codex-distribution.mjs';
 
-const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('parseFrontmatter reads required scalar fields and body', () => {
   const source = [
@@ -126,7 +127,9 @@ test('validateGeneratedArtifacts reports missing and drifted generated files', (
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-dist-test-'));
   try {
     fs.mkdirSync(path.join(tmp, 'codex/prompts'), { recursive: true });
+    fs.mkdirSync(path.join(tmp, 'codex/agents'), { recursive: true });
     fs.writeFileSync(path.join(tmp, 'codex/prompts/agent-skills-spec.md'), 'stale\n');
+    fs.writeFileSync(path.join(tmp, 'codex/agents/extra.toml'), 'ignore me\n');
 
     const expected = new Map([
       ['codex/prompts/agent-skills-spec.md', 'fresh\n'],
@@ -137,6 +140,7 @@ test('validateGeneratedArtifacts reports missing and drifted generated files', (
     assert.equal(result.ok, false);
     assert.deepEqual(result.drifted, ['codex/prompts/agent-skills-spec.md']);
     assert.deepEqual(result.missing, ['codex/agents/code-reviewer.toml']);
+    assert.deepEqual(result.extra, ['codex/agents/extra.toml']);
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
