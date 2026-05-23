@@ -262,7 +262,7 @@ export function renderPrompt(sourcePath, content) {
   if (!description) {
     throw new Error(`${sourcePath}: missing required description frontmatter`);
   }
-  if (!(commandName in COMMAND_ARGUMENT_HINTS)) {
+  if (!Object.hasOwn(COMMAND_ARGUMENT_HINTS, commandName)) {
     throw new Error(`${sourcePath}: missing command argument hint mapping for ${commandName}`);
   }
 

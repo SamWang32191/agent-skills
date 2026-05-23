@@ -84,6 +84,43 @@ test('renderPrompt rewrites ship orchestration to Codex spawn_agent and wait_age
   assert.doesNotMatch(rendered.content, /\.claude\/agents/);
 });
 
+test('renderPrompt throws for unknown command names', () => {
+  const source = [
+    '---',
+    'description: Unknown command',
+    '---',
+    '',
+    'Unknown command prompt.',
+    '',
+  ].join('\n');
+
+  assert.throws(
+    () => renderPrompt('.claude/commands/unknown.md', source),
+    /unknown\.md: missing command argument hint mapping for unknown/,
+  );
+});
+
+test('renderPrompt throws for prototype-key command names', () => {
+  const source = [
+    '---',
+    'description: Prototype key command',
+    '---',
+    '',
+    'Should not be allowed.',
+    '',
+  ].join('\n');
+
+  assert.throws(
+    () => renderPrompt('.claude/commands/toString.md', source),
+    /toString\.md: missing command argument hint mapping for toString/,
+  );
+
+  assert.throws(
+    () => renderPrompt('.claude/commands/constructor.md', source),
+    /constructor\.md: missing command argument hint mapping for constructor/,
+  );
+});
+
 test('renderAgentRole converts persona markdown to Codex TOML and rewrites Composition', () => {
   const source = fs.readFileSync(path.join(repoRoot, 'agents/code-reviewer.md'), 'utf8');
   const rendered = renderAgentRole('agents/code-reviewer.md', source);
