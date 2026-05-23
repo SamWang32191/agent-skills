@@ -166,10 +166,6 @@ sync_dir() {
 require_dir "$PROMPT_SRC" "generated Codex prompts" "*.md"
 require_dir "$AGENT_SRC" "generated Codex agents" "*.toml"
 
-if [ "$DRY_RUN" -eq 0 ]; then
-  mkdir -p "$CODEX_HOME_DIR/prompts" "$CODEX_HOME_DIR/agents"
-fi
-
 sync_dir "$PROMPT_SRC" "$CODEX_HOME_DIR/prompts" "prompts" "*.md"
 sync_dir "$AGENT_SRC" "$CODEX_HOME_DIR/agents" "agents" "*.toml"
 
