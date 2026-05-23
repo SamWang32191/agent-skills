@@ -106,6 +106,12 @@ install_one() {
     emit_error "missing_source_artifact" "missing source artifact ${src}. Run: node scripts/codex-distribution.mjs generate" "$src"
   fi
 
+  if [ -L "$dest" ]; then
+    printf 'conflict %s (destination is symlink)\n' "$rel" >&2
+    record_conflict "$rel"
+    return 0
+  fi
+
   if [ ! -e "$dest" ]; then
     printf 'copy %s\n' "$rel" >&2
     record_copy "$rel"
@@ -113,12 +119,6 @@ install_one() {
       mkdir -p "$(dirname "$dest")"
       cp "$src" "$dest"
     fi
-    return 0
-  fi
-
-  if [ -L "$dest" ]; then
-    printf 'conflict %s (destination is symlink)\n' "$rel" >&2
-    record_conflict "$rel"
     return 0
   fi
 
@@ -147,6 +147,11 @@ install_one() {
 
 sync_dir() {
   local src_dir="$1" dest_dir="$2" rel_prefix="$3" pattern="$4" file base rel
+  if [ -L "$dest_dir" ]; then
+    printf 'conflict %s (destination directory is symlink)\n' "$rel_prefix" >&2
+    record_conflict "$rel_prefix"
+    return 0
+  fi
   if [ "$DRY_RUN" -eq 0 ]; then
     mkdir -p "$dest_dir"
   fi

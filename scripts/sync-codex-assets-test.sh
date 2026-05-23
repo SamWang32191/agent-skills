@@ -185,7 +185,7 @@ assert_contains "no matching artifacts JSON type" '"type":"missing_matching_arti
 assert_contains "no matching artifacts path message" '/no-matching-source/codex/prompts' "$nomatch_output"
 assert_contains "no matching artifacts human-readable error" 'error:' "$nomatch_stderr"
 
-printf '\nTest 8: symlink destinations are reported as conflicts even with --force\n'
+printf '\nTest 8: dangling destination file symlink remains conflict even with --force\n'
 tmp_symlink_root="$TMPDIR/symlink-dest"
 mkdir -p "$tmp_symlink_root/scripts"
 cp -R codex "$tmp_symlink_root/"
@@ -194,8 +194,8 @@ chmod +x "$tmp_symlink_root/scripts/sync-codex-assets.sh"
 home4="$TMPDIR/home4"
 mkdir -p "$home4/prompts"
 mkdir -p "$tmp_symlink_root/ext"
-printf 'external target content\n' > "$tmp_symlink_root/ext/agent-skills-spec.txt"
-ln -sf "$tmp_symlink_root/ext/agent-skills-spec.txt" "$home4/prompts/agent-skills-spec.md"
+printf 'external target content\n' > "$tmp_symlink_root/ext/agent-skills-spec-target.txt"
+ln -sf "$tmp_symlink_root/ext/agent-skills-spec-target.txt-missing" "$home4/prompts/agent-skills-spec.md"
 set +e
 symlink_output="$(CODEX_HOME="$home4" bash "$tmp_symlink_root/scripts/sync-codex-assets.sh" --force 2>"$TMPDIR/symlink.stderr")"
 symlink_status=$?
@@ -205,8 +205,53 @@ assert_eq "symlink destination exits 2" "2" "$symlink_status"
 assert_contains "symlink destination conflict status" '"status":"conflict"' "$symlink_output"
 assert_contains "symlink destination path included" 'prompts/agent-skills-spec.md' "$symlink_output"
 assert_is_symlink "destination remains a symlink" "$home4/prompts/agent-skills-spec.md"
-assert_eq "symlink target file preserved" "external target content" "$(cat "$tmp_symlink_root/ext/agent-skills-spec.txt")"
+assert_eq "symlink dangling target remains missing" "agent-skills-spec-target.txt-missing" \
+  "$(basename "$(readlink "$home4/prompts/agent-skills-spec.md")")"
 assert_contains "symlink path does not write through on stderr" 'destination is symlink' "$symlink_stderr"
+
+printf '\nTest 9: symlinked prompts directory is reported as conflict\n'
+tmp_dirsymlink_root="$TMPDIR/dirsymlink-prompts-root"
+mkdir -p "$tmp_dirsymlink_root/scripts" "$tmp_dirsymlink_root/ext-prompts"
+cp -R codex "$tmp_dirsymlink_root/"
+cp scripts/sync-codex-assets.sh "$tmp_dirsymlink_root/scripts/"
+chmod +x "$tmp_dirsymlink_root/scripts/sync-codex-assets.sh"
+home5="$TMPDIR/home5"
+mkdir -p "$home5"
+mkdir -p "$tmp_dirsymlink_root/ext-prompts"
+ln -sfn "$tmp_dirsymlink_root/ext-prompts" "$home5/prompts"
+set +e
+dirsymlink_output="$(CODEX_HOME="$home5" bash "$tmp_dirsymlink_root/scripts/sync-codex-assets.sh" --force 2>"$TMPDIR/dirsymlink-prompts.stderr")"
+dirsymlink_status=$?
+set -e
+dirsymlink_stderr="$(cat "$TMPDIR/dirsymlink-prompts.stderr")"
+assert_eq "symlinked prompts directory exits 2" "2" "$dirsymlink_status"
+assert_contains "symlinked prompts directory conflict status" '"status":"conflict"' "$dirsymlink_output"
+assert_contains "symlinked prompts conflict path included" '"prompts"' "$dirsymlink_output"
+assert_is_symlink "prompts destination remains a symlink" "$home5/prompts"
+assert_eq "symlinked prompts directory stays empty" "0" "$(find "$tmp_dirsymlink_root/ext-prompts" -type f | wc -l | tr -d ' ')"
+assert_contains "symlinked prompts reports directory symlink" 'destination directory is symlink' "$dirsymlink_stderr"
+
+printf '\nTest 10: symlinked agents directory is reported as conflict\n'
+tmp_dirsymlink_agents_root="$TMPDIR/dirsymlink-agents-root"
+mkdir -p "$tmp_dirsymlink_agents_root/scripts" "$tmp_dirsymlink_agents_root/ext-agents"
+cp -R codex "$tmp_dirsymlink_agents_root/"
+cp scripts/sync-codex-assets.sh "$tmp_dirsymlink_agents_root/scripts/"
+chmod +x "$tmp_dirsymlink_agents_root/scripts/sync-codex-assets.sh"
+home6="$TMPDIR/home6"
+mkdir -p "$home6"
+mkdir -p "$tmp_dirsymlink_agents_root/ext-agents"
+ln -sfn "$tmp_dirsymlink_agents_root/ext-agents" "$home6/agents"
+set +e
+dirsymlink_agents_output="$(CODEX_HOME="$home6" bash "$tmp_dirsymlink_agents_root/scripts/sync-codex-assets.sh" --force 2>"$TMPDIR/dirsymlink-agents.stderr")"
+dirsymlink_agents_status=$?
+set -e
+dirsymlink_agents_stderr="$(cat "$TMPDIR/dirsymlink-agents.stderr")"
+assert_eq "symlinked agents directory exits 2" "2" "$dirsymlink_agents_status"
+assert_contains "symlinked agents directory conflict status" '"status":"conflict"' "$dirsymlink_agents_output"
+assert_contains "symlinked agents conflict path included" '"agents"' "$dirsymlink_agents_output"
+assert_is_symlink "agents destination remains a symlink" "$home6/agents"
+assert_eq "symlinked agents directory stays empty" "0" "$(find "$tmp_dirsymlink_agents_root/ext-agents" -type f | wc -l | tr -d ' ')"
+assert_contains "symlinked agents reports directory symlink" 'destination directory is symlink' "$dirsymlink_agents_stderr"
 
 if [ "$fail" -gt 0 ]; then
   printf '\n%d assertion(s) failed\n' "$fail" >&2
