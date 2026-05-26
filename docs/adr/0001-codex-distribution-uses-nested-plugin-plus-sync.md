@@ -1,0 +1,3 @@
+# Codex distribution uses nested plugin plus sync
+
+The first Codex Distribution uses a nested Codex Plugin Bundle for plugin-native capabilities and an explicit sync step for Codex prompts and agent roles. This is intentional because current Codex plugin manifests do not provide native prompt or agent-role contribution points, repo-local marketplaces cannot point a local plugin source at the marketplace root itself, and patching Codex core would make the distribution harder to install and maintain. The sync step and committed Bundle Mirrors are therefore part of Distribution Install, not incidental workarounds.

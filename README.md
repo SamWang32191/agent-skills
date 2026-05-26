@@ -108,7 +108,22 @@ Use agent definitions from `agents/` as Copilot personas and skill content in `.
 </details>
 
 <details>
-<summary><b>Codex / Other Agents</b></summary>
+<summary><b>Codex</b></summary>
+
+Codex uses a local Codex Distribution: a nested plugin bundle plus synced local prompts and agent roles.
+
+```bash
+codex plugin marketplace add .
+codex plugin add agent-skills@agent-skills
+bash scripts/sync-codex-assets.sh
+```
+
+See [docs/codex-setup.md](docs/codex-setup.md).
+
+</details>
+
+<details>
+<summary><b>Other Agents</b></summary>
 
 Skills are plain Markdown - they work with any agent that accepts system prompts or instruction files. See [docs/getting-started.md](docs/getting-started.md).
 
