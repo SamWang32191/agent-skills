@@ -109,6 +109,9 @@ Use agent definitions from `agents/` as Copilot personas and skill content in `.
 
 <details>
 <summary><b>Codex</b></summary>
+  
+
+Codex App 請看 [Codex App Install Guide](https://github.com/SamWang32191/agent-skills/wiki/Codex-app-install-guide)
 
 Install as a Codex plugin:
 
