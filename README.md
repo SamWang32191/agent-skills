@@ -108,7 +108,23 @@ Use agent definitions from `agents/` as Copilot personas and skill content in `.
 </details>
 
 <details>
-<summary><b>Codex / Other Agents</b></summary>
+<summary><b>Codex</b></summary>
+
+Install as a Codex plugin:
+
+```bash
+codex plugin marketplace add SamWang32191/agent-skills
+codex plugin add agent-skills@agent-skills
+```
+
+After installation, use the `install-codex-assets` skill to copy optional Codex App assets into `~/.codex/agents/` and `~/.codex/prompts/`.
+
+See [docs/codex-setup.md](docs/codex-setup.md) for branch testing, local development, asset installation, and verification.
+
+</details>
+
+<details>
+<summary><b>Other Agents</b></summary>
 
 Skills are plain Markdown - they work with any agent that accepts system prompts or instruction files. See [docs/getting-started.md](docs/getting-started.md).
 
@@ -118,15 +134,16 @@ Skills are plain Markdown - they work with any agent that accepts system prompts
 
 ---
 
-## All 23 Skills
+## All 24 Skills
 
-The commands above are entry points. The pack includes 23 skills total — 22 lifecycle skills plus the `using-agent-skills` meta-skill. Each skill is a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
+The pack includes 24 skills total — 22 lifecycle skills, the `using-agent-skills` meta-skill, and the `install-codex-assets` setup skill. Each skill is a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
 
 ### Meta - Discover which skill applies
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
 | [using-agent-skills](skills/using-agent-skills/SKILL.md) | Maps incoming work to the right skill workflow and defines shared operating rules | Starting a session or deciding which skill applies |
+| [install-codex-assets](skills/install-codex-assets/SKILL.md) | Copies Agent Skills personas and command prompts into Codex App's global asset directories | Setting up this plugin for Codex App |
 
 ### Define - Clarify what to build
 
@@ -242,7 +259,7 @@ Every skill follows a consistent anatomy:
 
 ```
 agent-skills/
-├── skills/                            # 23 skills (22 lifecycle + 1 meta)
+├── skills/                            # 24 skills (22 lifecycle + 1 meta + 1 Codex setup)
 │   ├── interview-me/                  #   Define
 │   ├── idea-refine/                   #   Define
 │   ├── spec-driven-development/       #   Define
@@ -265,10 +282,15 @@ agent-skills/
 │   ├── deprecation-and-migration/     #   Ship
 │   ├── documentation-and-adrs/        #   Ship
 │   ├── shipping-and-launch/           #   Ship
-│   └── using-agent-skills/            #   Meta: how to use this pack
+│   ├── using-agent-skills/            #   Meta: how to use this pack
+│   └── install-codex-assets/          #   Codex setup: copy agents and prompts
 ├── agents/                            # 3 specialist personas
 ├── references/                        # 4 supplementary checklists
 ├── hooks/                             # Session lifecycle hooks
+├── scripts/                           # Validation helpers
+├── .codex-plugin/                     # Codex plugin manifest
+├── .agents/plugins/marketplace.json    # Codex repo marketplace metadata
+├── plugins/agent-skills                # Codex marketplace plugin path
 ├── .claude/commands/                  # 7 slash commands (Claude Code)
 ├── .gemini/commands/                  # 7 slash commands (Gemini CLI)
 └── docs/                              # Setup guides per tool

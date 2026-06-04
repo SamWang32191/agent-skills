@@ -1,0 +1,30 @@
+{
+  "name": "agent-skills",
+  "description": "Production-grade engineering skills for AI coding agents, packaged as a Codex Plugin Bundle.",
+  "version": "0.1.0+codex.20260604075127",
+  "author": {
+    "name": "Addy Osmani"
+  },
+  "homepage": "https://github.com/SamWang32191/agent-skills",
+  "repository": "https://github.com/SamWang32191/agent-skills",
+  "license": "MIT",
+  "skills": "./skills",
+  "interface": {
+    "displayName": "Agent Skills",
+    "shortDescription": "Production-grade engineering workflows for Codex.",
+    "longDescription": "Agent Skills packages senior engineering workflows, review personas, and a Codex setup skill for installing global assets.",
+    "developerName": "Addy Osmani",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use agent-skills to plan this change.",
+      "Review this diff with agent-skills.",
+      "Help me ship this work safely."
+    ],
+    "brandColor": "#0F766E"
+  }
+}
