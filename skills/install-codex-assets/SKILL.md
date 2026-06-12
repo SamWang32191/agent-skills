@@ -1,6 +1,6 @@
 ---
 name: install-codex-assets
-description: Install Agent Skills assets for Codex App. Use when setting up or upgrade this plugin in Codex.
+description: Install Agent Skills assets for Codex App. Use when installing the Agent Skills plugin for the first time or updating the plugin in Codex.
 ---
 
 # Install Codex Assets
@@ -63,14 +63,6 @@ Use this skill when:
    - Windows: `%USERPROFILE%\.codex\agents` and `%USERPROFILE%\.codex\prompts`
 
 8. Report the JSON result and ask the user to restart Codex App or open a new thread.
-
-9. After the workflow is complete, directly update the user's Codex config to disable this setup-only skill. Request shell escalation before writing outside the workspace. Edit `~/.codex/config.toml` on macOS/Linux or `%USERPROFILE%\.codex\config.toml` on Windows. If the entry already exists, set `enabled = false`; otherwise append:
-
-   ```toml
-   [[skills.config]]
-   name = "agent-skills:install-codex-assets"
-   enabled = false
-   ```
 
 ## Common Rationalizations
 
