@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "SCRIPT=\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"; [ -f \"$SCRIPT\" ] || SCRIPT=\"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.sh\"; [ -f \"$SCRIPT\" ]&& bash \"$SCRIPT\" || true"
+            "command": "CODEX_SCRIPT=\"${PLUGIN_ROOT}/hooks/session-start-codex.sh\"; CLAUDE_SCRIPT=\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"; if [ -f \"$CODEX_SCRIPT\" ]; then bash \"$CODEX_SCRIPT\"; else SCRIPT=\"$CLAUDE_SCRIPT\"; [ -f \"$SCRIPT\" ] || SCRIPT=\"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.sh\"; [ -f \"$SCRIPT\" ] && bash \"$SCRIPT\" || true; fi"
           }
         ]
       }
