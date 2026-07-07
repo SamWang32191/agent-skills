@@ -20,6 +20,9 @@ jobs:
       - name: Validate all skills
         run: node scripts/validate-skills.js
 
+      - name: Run skill evals (trigger + routing)
+        run: node scripts/run-evals.js
+
   validate-commands:
     name: Validate command parity and description sync
     runs-on: ubuntu-latest
