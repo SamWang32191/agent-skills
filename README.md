@@ -160,16 +160,17 @@ Use agent definitions from `agents/` as Copilot personas and skill content in `.
 
 <details>
 <summary><b>Codex</b></summary>
-  
 
 Codex App 請看 [Codex App Install Guide](https://github.com/SamWang32191/agent-skills/wiki/Codex-app-install-guide)
 
-Install as a Codex plugin:
+Install as a native Codex plugin (Codex CLI v0.122+):
 
 ```bash
 codex plugin marketplace add SamWang32191/agent-skills
 codex plugin add agent-skills@agent-skills
 ```
+
+Codex reads the root `skills/` directory directly through `.codex-plugin/plugin.json`. Once installed, invoke skills in chat using `@` (e.g. `@spec-driven-development`).
 
 After installation, use the `install-codex-assets` skill to copy optional Codex App assets into `~/.codex/agents/` and `~/.codex/prompts/`.
 

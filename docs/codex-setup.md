@@ -1,14 +1,15 @@
-# Codex Setup
+# Using agent-skills with Codex
 
-This guide installs Agent Skills as a Codex plugin and then copies optional global assets that Codex App reads from the user's Codex home.
+This repository is a Codex plugin. Codex reads the root-level `skills/` directory directly through `.codex-plugin/plugin.json`, while optional Codex App assets can be copied into the user's Codex home.
 
 ## Requirements
 
 - Node.js is required on macOS, Linux, and Windows.
+- Codex CLI v0.122 or later is required for `codex plugin marketplace add`.
 - Codex plugin installation does not automatically execute repository scripts.
 - Codex App prompt files must be real files. Do not use symlinks for `~/.codex/prompts`.
 
-## Install the Plugin
+## Install
 
 From this GitHub fork:
 
@@ -16,6 +17,8 @@ From this GitHub fork:
 codex plugin marketplace add SamWang32191/agent-skills
 codex plugin add agent-skills@agent-skills
 ```
+
+The first command configures this repository as a marketplace source. The second command installs the `agent-skills` plugin from that marketplace snapshot.
 
 To test a branch before merging it into the default branch:
 
@@ -39,6 +42,10 @@ codex plugin add agent-skills@agent-skills
 ```
 
 Restart Codex App or open a new thread after plugin installation.
+
+## Usage
+
+After install, invoke a skill in Codex chat with `@` (for example, `@spec-driven-development`) or describe the task and let Codex pick the matching skill.
 
 ## Install Global Codex Assets
 
@@ -93,3 +100,9 @@ Test-Path "$HOME\.codex\prompts\spec.md"
 ```
 
 Then restart Codex App or open a new thread so the app refreshes prompts and agents.
+
+## How It Works
+
+- `.codex-plugin/plugin.json` points `skills` at `./skills/` and declares an empty Codex hook config so Codex does not auto-load Claude-oriented hooks from `hooks/hooks.json`.
+- `.agents/plugins/marketplace.json` declares the repository root (`./`) as the plugin source.
+- `skills/<name>/SKILL.md` is shared by Codex and Claude Code.
