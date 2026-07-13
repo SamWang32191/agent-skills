@@ -21,7 +21,8 @@
         "owner": "debugging-and-error-recovery"
       },
       {
-        "prompt": "Make this landing page responsive on mobile"
+        "prompt": "Make this landing page responsive on mobile",
+        "owner": "frontend-ui-engineering"
       }
     ]
   },

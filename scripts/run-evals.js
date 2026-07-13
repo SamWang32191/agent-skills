@@ -154,7 +154,7 @@ function loadSkills() {
     const file = path.join(SKILLS_DIR, dir, 'SKILL.md');
     if (!fs.existsSync(file)) continue;
     const src = fs.readFileSync(file, 'utf8');
-    const m = src.match(/^---\n([\s\S]*?)\n---/);
+    const m = src.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
     if (!m) continue;
     const name = (m[1].match(/^name:\s*(.+)$/m) || [])[1];
     const description = (m[1].match(/^description:\s*(.+)$/m) || [])[1];
@@ -176,6 +176,19 @@ function loadCases() {
         return { file: f, parseError: e.message };
       }
     });
+}
+
+function resolveFixturePath(root, rel) {
+  if (path.isAbsolute(rel)) {
+    throw new Error(`fixture path must be relative: ${rel}`);
+  }
+  const resolvedRoot = path.resolve(root);
+  const resolvedPath = path.resolve(resolvedRoot, rel);
+  const back = path.relative(resolvedRoot, resolvedPath);
+  if (back === '' || back === '..' || back.startsWith(`..${path.sep}`) || path.isAbsolute(back)) {
+    throw new Error(`fixture path escapes workspace: ${rel}`);
+  }
+  return resolvedPath;
 }
 
 // ---------- tier 2 ----------
@@ -331,11 +344,11 @@ function materializeWorkspace(ev) {
   // agent has real code to operate on rather than describing what it would do.
   const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-skills-eval-'));
   for (const rel of ev.files || []) {
-    const src = path.join(FIXTURES_DIR, rel);
+    const src = resolveFixturePath(FIXTURES_DIR, rel);
     if (!fs.existsSync(src)) {
       throw new Error(`fixture listed in files[] not found: evals/fixtures/${rel}`);
     }
-    const dest = path.join(workspace, rel);
+    const dest = resolveFixturePath(workspace, rel);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.cpSync(src, dest, { recursive: true });
   }

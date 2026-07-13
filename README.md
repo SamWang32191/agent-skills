@@ -69,10 +69,15 @@ Prefer a native integration? Pick your tool below.
 /plugin install agent-skills@addy-agent-skills
 ```
 
-> **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or use the full HTTPS URL to force the HTTPS cloning:
+> **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or use the full HTTPS URL to force HTTPS cloning during the marketplace-add step:
 > ```bash
 > /plugin marketplace add https://github.com/addyosmani/agent-skills.git
 > /plugin install agent-skills@addy-agent-skills
+> ```
+>
+> If `/plugin install` still fails with `git@github.com: Permission denied (publickey)` on Windows or macOS, the recommended workaround is to configure Git once to rewrite GitHub SSH URLs to HTTPS for subprocess clones:
+> ```bash
+> git config --global url."https://github.com/".insteadOf git@github.com:
 > ```
 
 **Local / development:**
@@ -87,7 +92,7 @@ claude --plugin-dir /path/to/agent-skills
 <details>
 <summary><b>Cursor</b></summary>
 
-Copy any `SKILL.md` into `.cursor/rules/`, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
+Put workflow skills under `.cursor/skills/` (sync from `agent-skills/skills/`) and short policies in `.cursor/rules/*.mdc` — do not paste full skills into rules. See [docs/cursor-setup.md](docs/cursor-setup.md).
 
 </details>
 
@@ -186,6 +191,12 @@ Skills are plain Markdown - they work with any agent that accepts system prompts
 </details>
 
 
+
+---
+
+## Adoption
+
+Already installed? How you roll the pack out depends on your codebase. The **[Adoption Guide](docs/adoption-guide.md)** covers two paths: the full lifecycle from day one for a greenfield project, or an incremental, verification-first rollout for an established codebase.
 
 ---
 
@@ -348,7 +359,7 @@ agent-skills/
 │   ├── using-agent-skills/            #   Meta: how to use this pack
 │   └── install-codex-assets/          #   Codex setup: copy agents and prompts
 ├── agents/                            # 4 specialist personas
-├── references/                        # 5 supplementary checklists
+├── references/                        # 7 supplementary checklists
 ├── hooks/                             # Session lifecycle hooks
 ├── scripts/                           # Validation helpers
 ├── .codex-plugin/                     # Codex plugin manifest
@@ -384,6 +395,18 @@ Wondering how this stacks up against [Superpowers](https://github.com/obra/super
 Skills should be **specific** (actionable steps, not vague advice), **verifiable** (clear exit criteria with evidence requirements), **battle-tested** (based on real workflows), and **minimal** (only what's needed to guide the agent).
 
 See [docs/skill-anatomy.md](docs/skill-anatomy.md) for the format specification and [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## Team
+
+agent-skills is built and maintained by:
+
+| | Name | GitHub | Role |
+|---|------|--------|------|
+| <img src="https://github.com/addyosmani.png?size=120" width="60" height="60" alt="Addy Osmani"> | **Addy Osmani** | [@addyosmani](https://github.com/addyosmani) | Creator |
+| <img src="https://github.com/federicobartoli.png?size=120" width="60" height="60" alt="Federico Bartoli"> | **Federico Bartoli** | [@federicobartoli](https://github.com/federicobartoli) | Collaborator |
+| <img src="https://github.com/nucliweb.png?size=120" width="60" height="60" alt="Joan León"> | **Joan León** | [@nucliweb](https://github.com/nucliweb) | Collaborator |
 
 ---
 

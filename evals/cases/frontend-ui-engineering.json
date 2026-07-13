@@ -3,8 +3,16 @@
   "trigger": {
     "positive": [
       {
+        "prompt": "Make this page responsive and WCAG compliant",
+        "top_k": 1
+      },
+      {
         "prompt": "Build an accessible modal component with keyboard support",
         "top_k": 3
+      },
+      {
+        "prompt": "Make the pricing page accessible and responsive on mobile",
+        "top_k": 1
       },
       {
         "prompt": "Refactor the dashboard into reusable components with sane state management",

@@ -2,6 +2,8 @@
 
 Thanks for your interest in contributing! This project is a collection of production-grade engineering skills for AI coding agents.
 
+New here? [docs/developer-onboarding.md](docs/developer-onboarding.md) is a guided tour of how the repo fits together (the five layers, the verification loop, and the contribution paths) and tells you when to read this document, [skill-anatomy.md](docs/skill-anatomy.md), and [evals/README.md](evals/README.md). This file is the authoritative rulebook; the onboarding guide is the map.
+
 ## Adding a New Skill
 
 ### Before proposing a new skill
@@ -63,6 +65,14 @@ The frontmatter fields above are required. The section anatomy is a recommended 
 - Keep changes focused and minimal
 - Preserve the existing structure and tone
 - Test that YAML frontmatter remains valid after edits
+
+## Repo-scoped files
+
+`AGENTS.md` and `CLAUDE.md` at the repo root configure agents working on the [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) repository itself. When writing setup guides or docs, do not instruct users to copy these files into their own projects or into a global agent configuration; the reusable assets are the skills in `skills/`.
+
+## Translations
+
+We don't accept translations of the documentation (README, `docs/`) or of skills and their content. Translated copies drift out of sync as skills and docs evolve, and we have no way to maintain them long-term without leaning on agent translations plus community corrections, which adds maintenance cost for limited value. Keep all skills, docs, and contributions in English.
 
 ## Testing Hooks
 
