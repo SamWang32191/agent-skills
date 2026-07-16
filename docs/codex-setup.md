@@ -1,13 +1,12 @@
 # Using agent-skills with Codex
 
-This repository is a Codex plugin. Codex reads the root-level `skills/` directory directly through `.codex-plugin/plugin.json`, while optional Codex App assets can be copied into the user's Codex home.
+This repository is a Codex plugin. Codex reads the root-level `skills/` directory directly through `.codex-plugin/plugin.json`, while optional Codex App agent personas can be copied into the user's Codex home.
 
 ## Requirements
 
 - Node.js is required on macOS, Linux, and Windows.
 - Codex CLI v0.122 or later is required for `codex plugin marketplace add`.
 - Codex plugin installation does not automatically execute repository scripts.
-- Codex App prompt files must be real files. Do not use symlinks for `~/.codex/prompts`.
 
 ## Install
 
@@ -58,9 +57,8 @@ Use the install-codex-assets skill to install Agent Skills Codex assets.
 The skill runs its bundled copy-only installer. It copies:
 
 - `agents/*.toml` into `~/.codex/agents/`
-- `.claude/commands/*.md` into `~/.codex/prompts/`
 
-On Windows, the targets are under `%USERPROFILE%\.codex\agents` and `%USERPROFILE%\.codex\prompts`.
+On Windows, the target is `%USERPROFILE%\.codex\agents`.
 
 ## Manual Install From a Checkout
 
@@ -89,17 +87,15 @@ On macOS or Linux:
 
 ```bash
 test -f ~/.codex/agents/code-reviewer.toml && test ! -L ~/.codex/agents/code-reviewer.toml
-test -f ~/.codex/prompts/spec.md && test ! -L ~/.codex/prompts/spec.md
 ```
 
 On Windows PowerShell:
 
 ```powershell
 Test-Path "$HOME\.codex\agents\code-reviewer.toml"
-Test-Path "$HOME\.codex\prompts\spec.md"
 ```
 
-Then restart Codex App or open a new thread so the app refreshes prompts and agents.
+Then restart Codex App or open a new thread so the app refreshes agents.
 
 ## How It Works
 

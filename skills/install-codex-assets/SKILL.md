@@ -1,21 +1,20 @@
 ---
 name: install-codex-assets
-description: Install Agent Skills assets for Codex App. Use when installing the Agent Skills plugin for the first time or updating the plugin in Codex.
+description: Install Agent Skills agent personas for Codex App. Use when installing the Agent Skills plugin for the first time or updating the plugin in Codex.
 ---
 
 # Install Codex Assets
 
 ## Overview
 
-Install this repository's Codex assets into the user's Codex home directory. The bundled installer copies files only; it does not create symlinks because Codex App does not load symlinked prompt files reliably.
+Install this repository's agent personas into the user's Codex home directory. The bundled installer copies files only; it does not create symlinks.
 
 ## When to Use
 
 Use this skill when:
 
-- The user installed the Agent Skills Codex plugin and wants Codex App commands or agent personas to appear.
+- The user installed the Agent Skills Codex plugin and wants its agent personas to appear.
 - `agents/*.toml` must be copied into `~/.codex/agents`.
-- `.claude/commands/*.md` must be copied into `~/.codex/prompts`.
 - The user wants a macOS, Linux, or Windows-compatible Codex asset install flow.
 
 ## Workflow
@@ -59,8 +58,8 @@ Use this skill when:
    ```
 
 7. Request shell escalation before writing to the user's Codex home. Targets are:
-   - macOS/Linux: `~/.codex/agents` and `~/.codex/prompts`
-   - Windows: `%USERPROFILE%\.codex\agents` and `%USERPROFILE%\.codex\prompts`
+   - macOS/Linux: `~/.codex/agents`
+   - Windows: `%USERPROFILE%\.codex\agents`
 
 8. Report the JSON result and ask the user to restart Codex App or open a new thread.
 
@@ -68,16 +67,15 @@ Use this skill when:
 
 | Rationalization | Reality |
 |---|---|
-| "Symlinks are simpler." | Codex App prompt discovery does not reliably load symlinked prompt files. Copy files. |
+| "Symlinks are simpler." | The installer intentionally uses predictable copy semantics. Copy files. |
 | "Plugin installation should run this automatically." | Codex plugin installation does not execute repository scripts. The asset install is an explicit follow-up step. |
 | "Conflicts can be overwritten silently." | Existing user files may be intentional. Use `--force` only after user approval. |
 
 ## Red Flags
 
 - The installer creates symlinks.
-- The installer reads prompts from `commands/` instead of `.claude/commands/`.
 - The installer overwrites different existing files without `--force`.
-- The response says commands are installed before checking `~/.codex/prompts`.
+- The response says agents are installed before checking `~/.codex/agents`.
 
 ## Verification
 
@@ -93,5 +91,4 @@ Also verify the targets are real files, not symlinks:
 
 ```bash
 test -f ~/.codex/agents/code-reviewer.toml && test ! -L ~/.codex/agents/code-reviewer.toml
-test -f ~/.codex/prompts/spec.md && test ! -L ~/.codex/prompts/spec.md
 ```

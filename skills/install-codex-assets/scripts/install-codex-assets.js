@@ -27,7 +27,6 @@ Options:
 
 Installs:
   agents/*.toml              -> $CODEX_HOME/agents/ (copy)
-  .claude/commands/*.md      -> $CODEX_HOME/prompts/ (copy)
 `);
 }
 
@@ -69,10 +68,7 @@ for (let index = 0; index < args.length; index += 1) {
 }
 
 function hasAssetSources(candidateRoot) {
-  return (
-    fs.existsSync(path.join(candidateRoot, "agents")) &&
-    fs.existsSync(path.join(candidateRoot, ".claude", "commands"))
-  );
+  return fs.existsSync(path.join(candidateRoot, "agents"));
 }
 
 function inferSourceRoot(startDir) {
@@ -102,23 +98,16 @@ if (!options.sourceRoot) {
 }
 
 if (!hasAssetSources(options.sourceRoot)) {
-  process.stderr.write(`Source root is missing agents/ or .claude/commands/: ${options.sourceRoot}\n`);
+  process.stderr.write(`Source root is missing agents/: ${options.sourceRoot}\n`);
   process.exit(2);
 }
 
 const agentsTargetDir = path.join(options.codexHome, "agents");
-const promptsTargetDir = path.join(options.codexHome, "prompts");
 const agentRecords = [];
-const promptRecords = [];
 const conflicts = [];
 
-function addRecord(group, source, target, action) {
-  const record = { source, target, action };
-  if (group === "agents") {
-    agentRecords.push(record);
-  } else {
-    promptRecords.push(record);
-  }
+function addRecord(source, target, action) {
+  agentRecords.push({ source, target, action });
 }
 
 function addConflict(source, target, reason) {
@@ -159,7 +148,7 @@ function sameContentFile(source, target, stats) {
   }
 }
 
-function installOne(group, source, target) {
+function installOne(source, target) {
   const stats = lstatOrNull(target);
   let replacing = false;
 
@@ -168,7 +157,7 @@ function installOne(group, source, target) {
     const symlinkNeedsCopy = stats.isSymbolicLink() && targetAlreadyMatches;
 
     if (targetAlreadyMatches && !symlinkNeedsCopy) {
-      addRecord(group, source, target, "unchanged");
+      addRecord(source, target, "unchanged");
       return;
     }
 
@@ -186,7 +175,7 @@ function installOne(group, source, target) {
   }
 
   if (options.dryRun) {
-    addRecord(group, source, target, replacing ? "would-overwrite-copy" : "would-copy");
+    addRecord(source, target, replacing ? "would-overwrite-copy" : "would-copy");
     return;
   }
 
@@ -195,7 +184,7 @@ function installOne(group, source, target) {
   }
 
   fs.copyFileSync(source, target);
-  addRecord(group, source, target, replacing ? "overwritten-copy" : "copied");
+  addRecord(source, target, replacing ? "overwritten-copy" : "copied");
 }
 
 function listFiles(directory, extension) {
@@ -219,28 +208,17 @@ process.stderr.write("Mode: copy\n");
 
 if (!options.dryRun) {
   fs.mkdirSync(agentsTargetDir, { recursive: true });
-  fs.mkdirSync(promptsTargetDir, { recursive: true });
 }
 
 const agentSourceDir = path.join(options.sourceRoot, "agents");
-const promptSourceDir = path.join(options.sourceRoot, ".claude", "commands");
 const agentSources = listFiles(agentSourceDir, ".toml");
-const promptSources = listFiles(promptSourceDir, ".md");
 
 if (agentSources.length === 0) {
   addConflict(path.join(agentSourceDir, "*.toml"), agentsTargetDir, "no agent toml files found");
 }
 
-if (promptSources.length === 0) {
-  addConflict(path.join(promptSourceDir, "*.md"), promptsTargetDir, "no prompt markdown files found");
-}
-
 for (const source of agentSources) {
-  installOne("agents", source, path.join(agentsTargetDir, path.basename(source)));
-}
-
-for (const source of promptSources) {
-  installOne("prompts", source, path.join(promptsTargetDir, path.basename(source)));
+  installOne(source, path.join(agentsTargetDir, path.basename(source)));
 }
 
 if (conflicts.length > 0) {
@@ -257,7 +235,6 @@ process.stdout.write(
     sourceRoot: options.sourceRoot,
     codexHome: options.codexHome,
     agents: agentRecords,
-    prompts: promptRecords,
     conflicts,
   })}\n`
 );

@@ -177,7 +177,7 @@ codex plugin add agent-skills@agent-skills
 
 Codex reads the root `skills/` directory directly through `.codex-plugin/plugin.json`. Once installed, invoke skills in chat using `@` (e.g. `@spec-driven-development`).
 
-After installation, use the `install-codex-assets` skill to copy optional Codex App assets into `~/.codex/agents/` and `~/.codex/prompts/`.
+After installation, use the `install-codex-assets` skill to copy optional agent personas into `~/.codex/agents/`.
 
 See [docs/codex-setup.md](docs/codex-setup.md) for branch testing, local development, asset installation, and verification.
 
@@ -209,7 +209,7 @@ The commands above are entry points. The pack includes 25 skills total — 23 li
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
 | [using-agent-skills](skills/using-agent-skills/SKILL.md) | Maps incoming work to the right skill workflow and defines shared operating rules | Starting a session or deciding which skill applies |
-| [install-codex-assets](skills/install-codex-assets/SKILL.md) | Copies Agent Skills personas and command prompts into Codex App's global asset directories | Setting up this plugin for Codex App |
+| [install-codex-assets](skills/install-codex-assets/SKILL.md) | Copies Agent Skills personas into Codex App's global agent directory | Setting up this plugin for Codex App |
 
 ### Define - Clarify what to build
 
@@ -357,7 +357,7 @@ agent-skills/
 │   ├── observability-and-instrumentation/ # Ship
 │   ├── shipping-and-launch/           #   Ship
 │   ├── using-agent-skills/            #   Meta: how to use this pack
-│   └── install-codex-assets/          #   Codex setup: copy agents and prompts
+│   └── install-codex-assets/          #   Codex setup: copy agents
 ├── agents/                            # 4 specialist personas
 ├── references/                        # 7 supplementary checklists
 ├── hooks/                             # Session lifecycle hooks

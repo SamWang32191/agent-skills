@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Test Codex asset installer
+        run: node skills/install-codex-assets/scripts/test-install-codex-assets.js
+
       - name: Validate all skills
         run: node scripts/validate-skills.js
 
