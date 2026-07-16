@@ -1,0 +1,5 @@
+interface:
+  display_name: "Agent Skills Review"
+  short_description: "Agent Skills Review Prompts"
+policy:
+  allow_implicit_invocation: false

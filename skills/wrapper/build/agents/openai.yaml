@@ -1,0 +1,5 @@
+interface:
+  display_name: "Agent Skills Build"
+  short_description: "Agent Skills Build Prompts"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Agent Skills Spec"
+  short_description: "Agent Skills Spec Prompts"
+policy:
+  allow_implicit_invocation: false

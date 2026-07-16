@@ -1,0 +1,5 @@
+interface:
+  display_name: "Agent Skills Webpref"
+  short_description: "Agent Skills Webpref Prompts"
+policy:
+  allow_implicit_invocation: false

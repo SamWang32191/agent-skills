@@ -1,0 +1,5 @@
+interface:
+  display_name: "Agent Skills Test"
+  short_description: "Agent Skills Test Prompts"
+policy:
+  allow_implicit_invocation: false
