@@ -30,12 +30,14 @@
       "id": 1,
       "prompt": "The working tree mixes a refactor, a bug fix, and a new feature. Turn it into a clean history.",
       "expected_output": "Separate atomic commits with clear messages, each independently green",
+      "files": [
+        "git-workflow-and-versioning"
+      ],
       "expectations": [
         "Refactor, fix, and feature land as separate commits",
         "Commit messages are imperative and standalone",
         "Each commit leaves the tree in a working state"
-      ],
-      "trust_level": "provisional"
+      ]
     }
   ]
 }

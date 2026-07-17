@@ -30,12 +30,14 @@
       "id": 1,
       "prompt": "Plan the deprecation of a public v1 REST API with 200 external consumers, replaced by v2.",
       "expected_output": "A staged deprecation plan: comms, timeline, compatibility window, monitoring, and removal criteria",
+      "files": [
+        "deprecation-and-migration"
+      ],
       "expectations": [
         "Consumers are notified with a timeline before any breaking change",
         "A compatibility or migration window exists with monitoring of remaining usage",
         "Removal is gated on measured migration, not a calendar date alone"
-      ],
-      "trust_level": "provisional"
+      ]
     }
   ]
 }

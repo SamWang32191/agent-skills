@@ -39,12 +39,14 @@
       "id": 1,
       "prompt": "The products page renders slowly with 1000 items. Improve its performance.",
       "expected_output": "A measured baseline, an identified bottleneck, a targeted fix, and a verified improvement",
+      "files": [
+        "performance-optimization"
+      ],
       "expectations": [
         "Performance is measured before any optimization is applied",
         "The fix targets the measured bottleneck rather than guessing",
         "Improvement is verified against the baseline after the change"
-      ],
-      "trust_level": "provisional"
+      ]
     }
   ]
 }

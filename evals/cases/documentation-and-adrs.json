@@ -31,12 +31,14 @@
       "id": 1,
       "prompt": "Record the decision to adopt event sourcing for the orders service as an ADR.",
       "expected_output": "An ADR capturing context, decision, alternatives considered, and consequences",
+      "files": [
+        "documentation-and-adrs"
+      ],
       "expectations": [
         "The ADR states context, decision, alternatives, and consequences distinctly",
         "Trade-offs and rejected options are recorded, not just the winning choice",
         "The document is written in timeless language describing current state"
-      ],
-      "trust_level": "provisional"
+      ]
     }
   ]
 }
