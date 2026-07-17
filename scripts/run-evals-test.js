@@ -26,6 +26,19 @@ function writeSkill(root, name, description) {
   );
 }
 
+function writeExplicitSkill(root, relativeDir, name, description) {
+  const dir = path.join(root, 'skills', relativeDir);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, 'SKILL.md'),
+    `---\nname: ${name}\ndescription: ${description}\ndisable-model-invocation: true\n---\n\n# ${name}\n`,
+  );
+}
+
+function writeExplicitWrapper(root, name, description) {
+  writeExplicitSkill(root, path.join('wrapper', name), name, description);
+}
+
 function behavioralEval(files = ['project/context.txt']) {
   return {
     id: 1,
@@ -184,6 +197,62 @@ test('dry-runs a fixtureless dialogue eval', () => {
 
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(result.stdout, /dialogue transcript/);
+});
+
+test('validates and dry-runs an explicitly invoked nested wrapper', () => {
+  const root = makeSandbox();
+  writeExplicitWrapper(
+    root,
+    'archive-spec',
+    'Archives root planning artifacts. Use after finishing an agent-skills workflow.',
+  );
+  writeJson(path.join(root, 'evals', 'cases', 'archive-spec.json'), {
+    skill_name: 'archive-spec',
+    invocation: 'explicit',
+    evals: [behavioralEval()],
+  });
+
+  const deterministic = run(root);
+  const dryRun = run(root, ['--behavioral', 'archive-spec', '--dry-run']);
+
+  assert.equal(deterministic.status, 0, deterministic.stdout + deterministic.stderr);
+  assert.equal(dryRun.status, 0, dryRun.stdout + dryRun.stderr);
+  assert.match(dryRun.stdout, /execution trace/);
+});
+
+test('rejects explicit eval cases for implicitly invocable skills', () => {
+  const root = makeSandbox();
+  writeSkill(root, 'alpha-skill', 'Handles alpha widgets. Use when changing alpha widgets.');
+  writeJson(path.join(root, 'evals', 'cases', 'alpha-skill.json'), {
+    skill_name: 'alpha-skill',
+    invocation: 'explicit',
+    evals: [behavioralEval()],
+  });
+
+  const result = run(root);
+
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /disable-model-invocation: true/);
+});
+
+test('rejects explicit eval cases for top-level user-invoked skills', () => {
+  const root = makeSandbox();
+  writeExplicitSkill(
+    root,
+    'alpha-skill',
+    'alpha-skill',
+    'Handles alpha widgets. Use when changing alpha widgets.',
+  );
+  writeJson(path.join(root, 'evals', 'cases', 'alpha-skill.json'), {
+    skill_name: 'alpha-skill',
+    invocation: 'explicit',
+    evals: [behavioralEval()],
+  });
+
+  const result = run(root);
+
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /nested skill/);
 });
 
 test('enforces the configured rank-1 floor', () => {

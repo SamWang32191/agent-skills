@@ -12,8 +12,9 @@
  *       overlapping skills drifting in.
  *     - Coverage + schema: every case file maps to a real skill, skill_name
  *       matches, and behavioral evals follow the skill-creator evals.json shape.
- *       Every skill must have a complete case file. Execution evals require
- *       real fixtures; dialogue evals treat the conversation as the artifact.
+ *       Every implicitly invoked top-level skill must have a complete case
+ *       file. Explicitly invoked nested wrappers may opt into fixture-backed
+ *       behavioral evals without entering the routing corpus.
  *     - Rank-1 ratchet: --min-rank1 <pct> fails when routing quality drops
  *       below the checked-in CI baseline.
  *   Tier 3 (opt-in, costs tokens, never in CI):
@@ -155,14 +156,40 @@ function loadSkills() {
   for (const dir of fs.readdirSync(SKILLS_DIR)) {
     const file = path.join(SKILLS_DIR, dir, 'SKILL.md');
     if (!fs.existsSync(file)) continue;
-    const src = fs.readFileSync(file, 'utf8');
-    const m = src.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
-    if (!m) continue;
-    const name = (m[1].match(/^name:\s*(.+)$/m) || [])[1];
-    const description = (m[1].match(/^description:\s*(.+)$/m) || [])[1];
-    if (name && description) skills.push({ name: name.trim(), description: description.trim(), dir });
+    const skill = loadSkill(file);
+    if (skill) skills.push({ ...skill, dir });
   }
   return skills;
+}
+
+function loadSkill(file) {
+  const src = fs.readFileSync(file, 'utf8');
+  const m = src.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
+  if (!m) return null;
+  const name = (m[1].match(/^name:\s*(.+)$/m) || [])[1];
+  const description = (m[1].match(/^description:\s*(.+)$/m) || [])[1];
+  if (!name || !description) return null;
+  return {
+    name: name.trim(),
+    description: description.trim(),
+    explicit: /^disable-model-invocation:\s*true\s*$/m.test(m[1]),
+    nested: path.relative(SKILLS_DIR, path.dirname(file)).split(path.sep).length > 1,
+    file,
+  };
+}
+
+function findSkillsByName(skillName, dir = SKILLS_DIR) {
+  const matches = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const entryPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      matches.push(...findSkillsByName(skillName, entryPath));
+    } else if (entry.name === 'SKILL.md') {
+      const skill = loadSkill(entryPath);
+      if (skill?.name === skillName) matches.push(skill);
+    }
+  }
+  return matches;
 }
 
 function loadCases() {
@@ -225,11 +252,37 @@ function runDeterministic(minRank1) {
     }
     const d = c.data;
     const expected = c.file.replace(/\.json$/, '');
+    const invocation = d.invocation || 'implicit';
+    const explicit = invocation === 'explicit';
     if (d.skill_name !== expected) {
       console.log(`  ✗  ${c.file}: skill_name "${d.skill_name}" does not match filename`);
       errors++;
     }
-    if (!skillNames.has(expected)) {
+    if (invocation !== 'implicit' && invocation !== 'explicit') {
+      console.log(`  ✗  ${c.file}: invocation must be "implicit" or "explicit"`);
+      errors++;
+      continue;
+    }
+    if (explicit) {
+      const matches = findSkillsByName(expected);
+      if (matches.length !== 1) {
+        console.log(`  ✗  ${c.file}: expected one nested skill named "${expected}", found ${matches.length}`);
+        errors++;
+        continue;
+      }
+      if (!matches[0].explicit) {
+        console.log(`  ✗  ${c.file}: invocation "explicit" requires disable-model-invocation: true`);
+        errors++;
+      } else if (!matches[0].nested) {
+        console.log(`  ✗  ${c.file}: invocation "explicit" requires a nested skill`);
+        errors++;
+      }
+      const triggerCount = (d.trigger?.positive || []).length + (d.trigger?.negative || []).length;
+      if (triggerCount > 0) {
+        console.log(`  ✗  ${c.file}: explicit invocation skips routing and must omit trigger cases`);
+        errors++;
+      }
+    } else if (!skillNames.has(expected)) {
       console.log(`  ✗  ${c.file}: no such skill directory`);
       errors++;
       continue;
@@ -289,8 +342,8 @@ function runDeterministic(minRank1) {
       }
     }
 
-    // Trigger: positive
-    for (const t of d.trigger?.positive || []) {
+    // Trigger: positive. Explicitly invoked skills are outside routing.
+    for (const t of explicit ? [] : d.trigger?.positive || []) {
       positives++;
       const topK = t.top_k || 3;
       const ranking = rankSkills(t.prompt, corpus);
@@ -316,7 +369,7 @@ function runDeterministic(minRank1) {
     // With an "owner", the negative becomes a pairwise routing test: the
     // declared owner skill must outrank this one for the prompt, which
     // prevents vacuous passes where the prompt matches nothing at all.
-    for (const t of d.trigger?.negative || []) {
+    for (const t of explicit ? [] : d.trigger?.negative || []) {
       const ranking = rankSkills(t.prompt, corpus);
       let ok = true;
       if (ranking[0].name === expected && ranking[0].score > 0) {
@@ -348,7 +401,10 @@ function runDeterministic(minRank1) {
     const pc = (d.trigger?.positive || []).length;
     const nc = (d.trigger?.negative || []).length;
     const ec = (d.evals || []).length;
-    if (pc < MIN_POSITIVE || nc < MIN_NEGATIVE || ec < MIN_EVALS) {
+    if (explicit && ec < MIN_EVALS) {
+      console.log(`  ✗  ${expected}: explicit invocation needs at least ${MIN_EVALS} behavioral eval`);
+      errors++;
+    } else if (!explicit && (pc < MIN_POSITIVE || nc < MIN_NEGATIVE || ec < MIN_EVALS)) {
       console.log(`  ✗  ${expected}: below required minimums (${pc} positive/${nc} negative/${ec} behavioral; need ${MIN_POSITIVE}/${MIN_NEGATIVE}/${MIN_EVALS})`);
       errors++;
     }
@@ -449,7 +505,12 @@ function runBehavioral(skillName, dryRun) {
     console.error(`No eval case file for "${skillName}"`);
     process.exit(1);
   }
-  const skillFile = path.join(SKILLS_DIR, skillName, 'SKILL.md');
+  const matches = findSkillsByName(skillName);
+  if (matches.length !== 1) {
+    console.error(`Expected one skill named "${skillName}", found ${matches.length}`);
+    process.exit(1);
+  }
+  const skillFile = matches[0].file;
   const d = JSON.parse(fs.readFileSync(caseFile, 'utf8'));
   if (!d.evals?.length) {
     console.error(`"${skillName}" has no behavioral evals`);

@@ -19,7 +19,7 @@ What neither provides is a **deterministic, CI-safe** check for a multi-skill *c
 | 2. Trigger & routing | Positive prompts rank their skill top-k; negative prompts don't; no two descriptions near-collide | CI (`run-evals.js`) | Free |
 | 3. Behavioral | An agent following the skill satisfies its `expectations[]` | On demand (`run-evals.js --behavioral`) | Tokens |
 
-Tier 2 is a **lexical approximation** of routing (stemmed TF-IDF over descriptions). It cannot judge semantics — that's Tier 3's job — but it catches the two failure modes that dominate real trigger bugs: a description missing the vocabulary users say (false negative), and an over-broad description that outranks the right skill (false positive). A Tier-2 failure usually means *fix the description*, not the eval.
+Tier 2 is a **lexical approximation** of routing (stemmed TF-IDF over descriptions). It cannot judge semantics — that's Tier 3's job — but it catches the two failure modes that dominate real trigger bugs: a description missing the vocabulary users say (false negative), and an over-broad description that outranks the right skill (false positive). A Tier-2 failure usually means *fix the description*, not the eval. Explicitly invoked nested wrappers stay outside this routing corpus; their case files set `"invocation": "explicit"` and exercise behavior only.
 
 ## Running
 
@@ -44,6 +44,7 @@ One file per skill: `evals/cases/<skill-name>.json`.
 ```json
 {
   "skill_name": "test-driven-development",
+  "invocation": "implicit",
   "trigger": {
     "positive": [
       { "prompt": "Write a failing test for this bug before fixing it", "top_k": 3 }
@@ -71,14 +72,18 @@ One file per skill: `evals/cases/<skill-name>.json`.
 }
 ```
 
+`invocation` defaults to `implicit`. Use `explicit` only for a nested skill with
+`disable-model-invocation: true`; explicit cases omit `trigger` because no model
+routing occurs, but still require fixture-backed behavioral evals.
+
 - `evals[]` uses skill-creator's core schema (`id`, `prompt`, `expected_output`, optional `files[]`, `expectations[]`) plus this repository's optional `kind`. `kind` must be `execution` or `dialogue` and defaults to `execution` for compatibility. Execution evals require non-empty `files[]`; paths are relative to `evals/fixtures/` and may name a file or project directory. Dialogue evals may omit `files[]` because the transcript is the artifact. Expectations are verifiable statements a grader checks against the relevant artifact — behaviors, not phrasings.
-- `trigger` is this repo's extension. `positive` prompts are realistic user asks that should route here (`top_k` defaults to 3; tighten to 1 for a skill's signature ask). `negative` prompts belong to a *different* skill; this skill must not rank first for them. Declare that skill in `owner` where you can: the runner then asserts the owner **outranks** this skill, turning the negative into a real pairwise routing test instead of one that can pass vacuously when the prompt matches nothing.
+- `trigger` is this repo's extension for implicitly invoked skills. `positive` prompts are realistic user asks that should route here (`top_k` defaults to 3; tighten to 1 for a skill's signature ask). `negative` prompts belong to a *different* skill; this skill must not rank first for them. Declare that skill in `owner` where you can: the runner then asserts the owner **outranks** this skill, turning the negative into a real pairwise routing test instead of one that can pass vacuously when the prompt matches nothing. Explicit cases omit `trigger` entirely.
 
 **Writing good trigger prompts:** paraphrase how users actually talk; don't copy the description (that's gaming the eval). If a realistic prompt can't rank because the description lacks its vocabulary, that is a real finding — improve the description.
 
 ## Adding a skill
 
-Every skill ships with an eval file. When you add `skills/<name>/`, add `evals/cases/<name>.json` with at least 3 positive triggers, 2 negative triggers, and 1 behavioral eval. Execution evals must be backed by `evals/fixtures/<name>/`; use `kind: "dialogue"` only when the skill's deliverable is genuinely the conversation itself. Missing case files, incomplete case counts, unknown kinds, invalid fixture paths, and absent required fixtures are CI errors.
+Every skill ships with an eval file. When you add an implicitly invoked `skills/<name>/`, add `evals/cases/<name>.json` with at least 3 positive triggers, 2 negative triggers, and 1 behavioral eval. For an explicitly invoked nested wrapper, set `"invocation": "explicit"`, omit `trigger`, and add at least 1 behavioral eval. Execution evals must be backed by real files under `evals/fixtures/`; use `kind: "dialogue"` only when the skill's deliverable is genuinely the conversation itself. Missing case files for top-level skills, incomplete case counts, unknown kinds, invalid fixture paths, and absent required fixtures are CI errors.
 
 ## Metrics to watch
 
