@@ -1,0 +1,62 @@
+{
+  "skill_name": "archive-spec",
+  "invocation": "explicit",
+  "evals": [
+    {
+      "id": 1,
+      "kind": "execution",
+      "prompt": "Treat the attached archive-spec-success directory as the repository root. Invoke archive-spec with the argument issue #67. Complete the archive and do not commit, push, or open a pull request.",
+      "expected_output": "The complete root planning record is archived under docs/spec/issue-67 with evidence preserved, affected links repaired, and Git status reported",
+      "files": [
+        "archive-spec-success"
+      ],
+      "expectations": [
+        "archive-spec-success/SPEC.md and archive-spec-success/tasks are absent after the archive",
+        "archive-spec-success/docs/spec/issue-67 contains SPEC.md and the complete tasks tree including tasks/evidence/result.txt",
+        "The SPEC.md project-guide link resolves from its archived location and the task-plan link to SPEC.md still resolves",
+        "The execution reports diff and Git status checks without creating a commit, push, or pull request"
+      ]
+    },
+    {
+      "id": 2,
+      "kind": "execution",
+      "prompt": "Treat the attached archive-spec-collision directory as the repository root. Invoke archive-spec with the argument issue #67. Do not choose a different slug for me.",
+      "expected_output": "The destination collision is reported before mutation and the user is asked for an unoccupied slug",
+      "files": [
+        "archive-spec-collision"
+      ],
+      "expectations": [
+        "The existing docs/spec/issue-67 content is unchanged",
+        "Root SPEC.md and the complete root tasks tree remain unchanged",
+        "No archive move, merge, replacement, deletion, commit, push, or pull request occurs",
+        "The response asks the user to select an unoccupied slug"
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "execution",
+      "prompt": "Treat the attached archive-spec-rollback directory as the repository root. Invoke archive-spec with the argument issue #67. The pre-existing broken local link is outside scope; do not create its missing target or rewrite it.",
+      "expected_output": "The archive cannot satisfy link verification, so the transaction leaves or restores the preflight inventory and Git state",
+      "files": [
+        "archive-spec-rollback"
+      ],
+      "expectations": [
+        "Root SPEC.md and the complete root tasks tree exist with their original contents when execution ends",
+        "docs/spec/issue-67 does not remain after the failed transaction",
+        "The pre-existing broken link is neither rewritten nor given a fabricated target",
+        "No commit, push, or pull request occurs and the verification failure is reported"
+      ]
+    },
+    {
+      "id": 4,
+      "kind": "dialogue",
+      "prompt": "Invoke archive-spec without $ARGUMENTS. Do not infer a folder name from context.",
+      "expected_output": "The skill asks for $ARGUMENTS before performing any archive operation",
+      "expectations": [
+        "The response asks for the archive folder name through $ARGUMENTS",
+        "No folder name is inferred from an issue, PR, request, or SPEC title",
+        "No move, reference edit, commit, push, or pull request occurs"
+      ]
+    }
+  ]
+}
