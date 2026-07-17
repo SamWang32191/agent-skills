@@ -20,6 +20,16 @@ const { lintSkill } = require('./lib/skill-lint');
 
 const SKILLS_DIR = path.resolve(__dirname, '..', 'skills');
 
+function discoverSkillDirs(root, dir = root) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const hasSkill = entries.some(entry => entry.isFile() && entry.name === 'SKILL.md');
+  if (hasSkill) return [path.relative(root, dir) || '.'];
+
+  return entries
+    .filter(entry => entry.isDirectory())
+    .flatMap(entry => discoverSkillDirs(root, path.join(dir, entry.name)));
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -28,17 +38,18 @@ function main() {
     process.exit(1);
   }
 
-  const skillDirs = fs.readdirSync(SKILLS_DIR)
-    .filter(d => fs.statSync(path.join(SKILLS_DIR, d)).isDirectory())
+  const skillDirs = discoverSkillDirs(SKILLS_DIR)
     .sort();
 
-  const knownSkills = new Set(skillDirs);
+  const knownSkills = new Set(skillDirs.map(dirName => path.basename(dirName)));
 
   let totalErrors   = 0;
   let totalWarnings = 0;
 
   for (const dirName of skillDirs) {
-    const { errors, warnings, exempt } = lintSkill(dirName, SKILLS_DIR, knownSkills);
+    const skillName = path.basename(dirName);
+    const skillRoot = path.join(SKILLS_DIR, path.dirname(dirName));
+    const { errors, warnings, exempt } = lintSkill(skillName, skillRoot, knownSkills);
     totalErrors   += errors.length;
     totalWarnings += warnings.length;
 

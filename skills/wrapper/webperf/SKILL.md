@@ -1,6 +1,6 @@
 ---
 name: webperf
-description: Run a web performance audit via the web-performance-auditor persona
+description: Run a web performance audit via the web-performance-auditor persona. Use when auditing browser app performance.
 disable-model-invocation: true
 ---
 

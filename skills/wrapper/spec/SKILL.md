@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Start spec-driven development — write a structured specification before writing code
+description: Start spec-driven development. Use when requirements need a structured specification before coding.
 disable-model-invocation: true
 ---
 

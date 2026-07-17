@@ -1,6 +1,6 @@
 ---
 name: build
-description: Implement tasks incrementally — build, test, verify, commit. Add "auto" to run the whole plan in one approved pass.
+description: Implement tasks incrementally — build, test, verify, commit. Use when a plan is ready to execute.
 disable-model-invocation: true
 ---
 

@@ -54,6 +54,13 @@ const REQUIRED_SECTIONS = [
 const SECTION_EXEMPT_SKILLS = {
   'using-agent-skills': 'Meta-skill — orchestrates other skills; When-to-Use and Verification are not applicable to a routing document.',
   'idea-refine':        'Legacy structure predating skill-anatomy.md — uses How-It-Works/Usage/Anti-patterns instead of standard headings. Tracked for conformance in https://github.com/addyosmani/agent-skills/issues',
+  'build':              'Wrapper skill — delegates to canonical implementation skills and intentionally stays terse.',
+  'plan':               'Wrapper skill — delegates to the canonical planning skill and intentionally stays terse.',
+  'review':             'Wrapper skill — delegates to the canonical review skill and intentionally stays terse.',
+  'ship':               'Wrapper skill — delegates to launch/review orchestration and intentionally stays terse.',
+  'spec':               'Wrapper skill — delegates to the canonical spec skill and intentionally stays terse.',
+  'test':               'Wrapper skill — delegates to the canonical TDD skill and intentionally stays terse.',
+  'webperf':            'Wrapper skill — delegates to the web-performance persona and intentionally stays terse.',
 };
 
 // Regex patterns that indicate an explicit cross-skill reference.

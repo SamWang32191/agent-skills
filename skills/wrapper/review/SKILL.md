@@ -1,6 +1,6 @@
 ---
 name: review
-description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
+description: Conduct a five-axis code review. Use when reviewing code before merge.
 disable-model-invocation: true
 ---
 

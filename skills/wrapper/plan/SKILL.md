@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
+description: Break work into small verifiable tasks with acceptance criteria. Use when planning implementation work.
 disable-model-invocation: true
 ---
 
