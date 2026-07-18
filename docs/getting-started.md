@@ -136,7 +136,7 @@ The `references/` directory contains supplementary checklists:
 | `accessibility-checklist.md` | frontend-ui-engineering |
 | `definition-of-done.md` | all skills / every change |
 | `observability-checklist.md` | observability-and-instrumentation |
-| `orchestration-patterns.md` | context-engineering |
+| `orchestration-patterns.md` | doubt-driven-development |
 
 Load a reference when you need detailed patterns beyond what the skill covers.
 
