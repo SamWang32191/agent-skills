@@ -1,5 +1,5 @@
 interface:
-  display_name: "Agent Skills Ship"
+  display_name: "Ship - Agent Skills"
   short_description: "Agent Skills Ship Prompts"
 policy:
   allow_implicit_invocation: false

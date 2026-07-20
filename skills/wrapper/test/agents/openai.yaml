@@ -1,5 +1,5 @@
 interface:
-  display_name: "Agent Skills Test"
+  display_name: "Test - Agent Skills"
   short_description: "Agent Skills Test Prompts"
 policy:
   allow_implicit_invocation: false

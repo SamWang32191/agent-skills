@@ -1,5 +1,5 @@
 interface:
-  display_name: "Agent Skills Archive Spec"
+  display_name: "Archive Spec"
   short_description: "Archive specs and tasks by argument"
 policy:
   allow_implicit_invocation: false

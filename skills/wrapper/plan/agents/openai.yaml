@@ -1,5 +1,5 @@
 interface:
-  display_name: "Agent Skills Plan"
+  display_name: "Plan - Agent Skills"
   short_description: "Agent Skills Plan Prompts"
 policy:
   allow_implicit_invocation: false

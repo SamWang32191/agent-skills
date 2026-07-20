@@ -1,5 +1,5 @@
 interface:
-  display_name: "Agent Skills Webpref"
+  display_name: "Webpref - Agent Skills"
   short_description: "Agent Skills Webpref Prompts"
 policy:
   allow_implicit_invocation: false
