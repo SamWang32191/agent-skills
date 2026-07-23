@@ -7,3 +7,4 @@ node_modules/
 .claude/sdd-cache/
 .omo/
 evals/results/
+__pycache__/

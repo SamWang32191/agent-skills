@@ -52,6 +52,21 @@
         "A regression test covers the reported three-at-3.335 currency case",
         "The full suite is run after the minimal fix"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Add debit entries to the ledger, test-first. A debit subtracts its amount from the balance and must not drive the balance below zero.",
+      "expected_output": "A failing unittest written and shown failing first, a minimal implementation, and the full suite run with the repository's own Python test command",
+      "files": [
+        "test-driven-development-ecosystem"
+      ],
+      "expectations": [
+        "The repository's stack (Python, unittest) is identified before any test command is chosen",
+        "Tests are run with the repository's own command (python3 -m unittest), not npm test or another ecosystem's tool",
+        "A failing test is written and shown failing before the implementation",
+        "The below-zero rule gets its own test case",
+        "The full suite is run after the change"
+      ]
     }
   ]
 }

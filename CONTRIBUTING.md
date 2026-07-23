@@ -111,6 +111,13 @@ Open an issue if you find:
 - Missing coverage for a common engineering workflow
 - Inconsistencies between skills
 
+If a skill's guidance was wrong, outdated, or did not apply in your project
+(for example, it assumed `npm test` in a Maven or Gradle repo), use the
+[Skill gap](https://github.com/addyosmani/agent-skills/issues/new?template=skill-gap.yml)
+issue form. It asks for the affected skill, the relevant excerpt, your project
+context, and what you did instead — enough for maintainers to triage without a
+freeform write-up.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
