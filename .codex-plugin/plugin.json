@@ -1,7 +1,7 @@
 {
   "name": "agent-skills",
   "description": "Production-grade engineering skills for AI coding agents, packaged as a Codex Plugin Bundle.",
-  "version": "1.0.0+20260720_3",
+  "version": "1.0.0+20260723_1",
   "author": {
     "name": "Addy Osmani",
     "url": "https://github.com/addyosmani"
