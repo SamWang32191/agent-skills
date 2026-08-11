@@ -18,7 +18,11 @@ function readManifestVersion(manifestPath) {
   return manifest.version ?? manifest.plugins?.[0]?.version;
 }
 
-test("all plugin manifests use the latest release tag", () => {
+function releaseBase(version) {
+  return typeof version === "string" ? version.split("+", 1)[0] : version;
+}
+
+test("all plugin manifests use the latest release tag as their base version", () => {
   const expectedVersion = execFileSync(
     "git",
     ["describe", "--tags", "--abbrev=0"],
@@ -27,9 +31,9 @@ test("all plugin manifests use the latest release tag", () => {
 
   for (const manifestPath of manifestPaths) {
     assert.equal(
-      readManifestVersion(manifestPath),
+      releaseBase(readManifestVersion(manifestPath)),
       expectedVersion,
-      `${manifestPath} must use version ${expectedVersion}`,
+      `${manifestPath} must use release base ${expectedVersion}`,
     );
   }
 });
