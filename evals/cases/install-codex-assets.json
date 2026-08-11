@@ -1,0 +1,42 @@
+{
+  "skill_name": "install-codex-assets",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "Install the Agent Skills agent personas into my Codex App home directory",
+        "top_k": 3
+      },
+      {
+        "prompt": "I installed the plugin but the TOML agents are missing from ~/.codex/agents; copy them safely",
+        "top_k": 3
+      },
+      {
+        "prompt": "Update my Codex agents from Agent Skills, starting with a dry run",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "Help me choose the right engineering workflow for this task",
+        "owner": "using-agent-skills"
+      },
+      {
+        "prompt": "Write a spec for the new billing feature before implementation",
+        "owner": "spec-driven-development"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "kind": "dialogue",
+      "prompt": "I installed the Agent Skills plugin, but my Codex personas are missing. Tell me how to install them safely. Start with a dry run, do not overwrite differing files without my approval, and tell me what I need to restart afterward.",
+      "expected_output": "A safe installation procedure that uses the bundled copy-only installer, performs a dry run, preserves conflicts unless --force is approved, and reports the restart step.",
+      "expectations": [
+        "The response gives the bundled installer dry-run command and mentions --source-root when inference fails",
+        "The response explains that existing differing files are not overwritten without explicit --force approval",
+        "The response distinguishes a JSON/report result from claiming assets are installed and tells the user to restart Codex or open a new thread"
+      ]
+    }
+  ]
+}
