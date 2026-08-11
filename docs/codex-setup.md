@@ -1,11 +1,11 @@
 # Using agent-skills with Codex
 
-This repository is a Codex plugin. Codex reads the root-level `skills/` directory directly through `.codex-plugin/plugin.json`, while optional Codex App agent personas can be copied into the user's Codex home.
+This repository is a [Codex plugin](https://developers.openai.com/codex/plugins/build). Codex reads the root-level `skills/` directory directly through `.codex-plugin/plugin.json`, while optional Codex App agent personas can be copied into the user's Codex home.
 
 ## Requirements
 
 - Node.js is required on macOS, Linux, and Windows.
-- Codex CLI v0.122 or later is required for `codex plugin marketplace add`.
+- Codex CLI v0.122 or later is required for `codex plugin marketplace add`; older releases used `codex marketplace add`. See the [Codex CLI docs](https://developers.openai.com/codex/cli).
 - Codex plugin installation does not automatically execute repository scripts.
 
 ## Install
@@ -44,7 +44,7 @@ Restart Codex App or open a new thread after plugin installation.
 
 ## Usage
 
-After install, invoke a skill in Codex chat with `@` (for example, `@spec-driven-development`) or describe the task and let Codex pick the matching skill.
+After install, invoke a skill in Codex chat with `@` (for example, `@spec-driven-development`) or describe the task and let Codex pick the matching skill. All 25 skills under `skills/` are available.
 
 ## Install Global Codex Assets
 
@@ -102,3 +102,4 @@ Then restart Codex App or open a new thread so the app refreshes agents.
 - `.codex-plugin/plugin.json` points `skills` at `./skills/` and declares an empty Codex hook config so Codex does not auto-load Claude-oriented hooks from `hooks/hooks.json`.
 - `.agents/plugins/marketplace.json` declares the repository root (`./`) as the plugin source.
 - `skills/<name>/SKILL.md` is shared by Codex and Claude Code.
+- Slash commands in `.claude/commands/`, personas in `agents/`, and the lifecycle hook under `hooks/` stay Claude Code-specific. On Codex, invoke the underlying skill directly instead of the slash command (for example, `@spec-driven-development` instead of `/spec`).
