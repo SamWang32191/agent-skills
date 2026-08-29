@@ -44,7 +44,7 @@ Restart Codex App or open a new thread after plugin installation.
 
 ## Usage
 
-After install, invoke a skill in Codex chat with `@` (for example, `@spec-driven-development`) or describe the task and let Codex pick the matching skill. All 25 skills under `skills/` are available.
+After install, invoke a skill in Codex chat with `@` (for example, `@spec-driven-development`) or describe the task and let Codex pick the matching skill. All 26 skills under `skills/` are available.
 
 ## Install Global Codex Assets
 

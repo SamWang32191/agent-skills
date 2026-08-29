@@ -45,7 +45,7 @@ agy plugin list
 
 ## Slash Commands
 
-The plugin registers 8 custom slash commands: 7 lifecycle commands plus the `/webperf` specialist audit:
+The plugin registers 9 custom slash commands: 8 lifecycle commands plus the `/webperf` specialist audit:
 
 | Command | What it does | Activated Skill |
 |---------|--------------|-----------------|
