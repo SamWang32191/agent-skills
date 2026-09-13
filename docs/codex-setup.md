@@ -46,6 +46,8 @@ Restart Codex App or open a new thread after plugin installation.
 
 After install, invoke a skill in Codex chat with `@` (for example, `@spec-driven-development`) or describe the task and let Codex pick the matching skill. All 26 skills under `skills/` are available.
 
+[Codex uses progressive disclosure](https://developers.openai.com/codex/skills): it starts with each skill's `name` and `description`, chooses skills on demand, then loads the full `SKILL.md` only when selected. Do not also paste `using-agent-skills/SKILL.md` into `AGENTS.md`, a system prompt, or other always-on context: that stacks the pack's meta-router on Codex's native router and adds unnecessary routing work. The meta-skill can remain installed with the pack; the warning is specifically against preloading its full instructions.
+
 ## Install Global Codex Assets
 
 Use the `install-codex-assets` skill after the plugin is installed. In Codex, ask:

@@ -112,6 +112,7 @@ The repo ships 9 slash commands under `.gemini/commands/`: 8 lifecycle commands 
 | Command | What it does |
 |---------|--------------|
 | `/spec` | Write a structured spec before writing code |
+| `/constraints` | Define and enforce the project's quality bar |
 | `/planning` | Break work into small, verifiable tasks |
 | `/build` | Implement the next task incrementally |
 | `/test` | Run TDD workflow — red, green, refactor |
